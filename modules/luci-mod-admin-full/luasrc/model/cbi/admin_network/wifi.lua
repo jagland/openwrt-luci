@@ -943,4 +943,44 @@ if hwtype == "atheros" or hwtype == "mac80211" or hwtype == "prism2" then
 	end
 end
 
+dynamic_vlan = s:taboption("advanced", ListValue, "dynamic_vlan", translate("Dynamic VLAN Assignment"),translate("VLAN assigned based on RADIUS attribute as per RFC 3580 and RFC 2868, also called a VSA (Vendor Specific Attribute); <br><b>Disabled</b> - will only use the network specified in <i>General Setup</i> and will ignore the attribute. <br><b>Optional</b> - if not attribute recieved, will use the network specified in <i>General Setup</i><br>  <b>Required</b> - will drop connection if no VSA is recieved."))
+dynamic_vlan:depends({mode="ap", encryption="wpa"})
+dynamic_vlan:depends({mode="ap", encryption="wpa2"})
+dynamic_vlan:depends({mode="ap-wds", encryption="wpa"})
+dynamic_vlan:depends({mode="ap-wds", encryption="wpa2"})
+dynamic_vlan:value("0", translate("Disabled"))
+dynamic_vlan:value("1", translate("Optional"))
+dynamic_vlan:value("2", translate("Required"))
+
+vlan_naming = s:taboption("advanced", Flag, "vlan_naming", translate("VLAN Naming"), translate("Decide how a VLAN Interface is created;<br><b>Enabled</b> - will add VLANs to the <i>VLAN Tagged Interface</i> e.g. <i>eth0.yyy</i>.<br><b>Disabled</b> - you will need bridge interfaces called <i>vlanyyy</i> for each VLAN you expect to use."))
+vlan_naming:depends({mode="ap", encryption="wpa", dynamic_vlan="1"})
+vlan_naming:depends({mode="ap", encryption="wpa2", dynamic_vlan="1"})
+vlan_naming:depends({mode="ap-wds", encryption="wpa", dynamic_vlan="1"})
+vlan_naming:depends({mode="ap-wds", encryption="wpa2", dynamic_vlan="1"})
+vlan_naming:depends({mode="ap", encryption="wpa", dynamic_vlan="2"})
+vlan_naming:depends({mode="ap", encryption="wpa2", dynamic_vlan="2"})
+vlan_naming:depends({mode="ap-wds", encryption="wpa", dynamic_vlan="2"})
+vlan_naming:depends({mode="ap-wds", encryption="wpa2", dynamic_vlan="2"})
+vlan_naming.default = vlan_naming.enabled
+
+vlan_tagged_interface = s:taboption("advanced", Value, "vlan_tagged_interface", translate("VLAN Tagged Interface"))  
+vlan_tagged_interface.template = "cbi/network_ifacelist" 
+vlan_tagged_interface.widget = "radio"   
+vlan_tagged_interface.nobridges = true
+vlan_tagged_interface.noinactive = true   
+vlan_tagged_interface.novirtual = true   
+vlan_tagged_interface.nocreate = true   
+vlan_tagged_interface.rmempty = true
+vlan_tagged_interface.network = arg[1]
+vlan_tagged_interface.type = "switch"
+
+vlan_tagged_interface:depends({mode="ap", encryption="wpa", vlan_naming="1", dynamic_vlan="1"})
+vlan_tagged_interface:depends({mode="ap", encryption="wpa2", vlan_naming="1", dynamic_vlan="1"})
+vlan_tagged_interface:depends({mode="ap-wds", encryption="wpa", vlan_naming="1", dynamic_vlan="1"})
+vlan_tagged_interface:depends({mode="ap-wds", encryption="wpa2", vlan_naming="1", dynamic_vlan="1"})
+vlan_tagged_interface:depends({mode="ap", encryption="wpa", vlan_naming="1", dynamic_vlan="2"})
+vlan_tagged_interface:depends({mode="ap", encryption="wpa2", vlan_naming="1", dynamic_vlan="2"})
+vlan_tagged_interface:depends({mode="ap-wds", encryption="wpa", vlan_naming="1",  dynamic_vlan="2"})
+vlan_tagged_interface:depends({mode="ap-wds", encryption="wpa2", vlan_naming="1",  dynamic_vlan="2"})
+
 return m
